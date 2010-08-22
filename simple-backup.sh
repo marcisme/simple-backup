@@ -55,6 +55,7 @@ DEREFERENCE=${DEREFERENCE:-0}
 
 # paths and files
 ARCHIVE_DIR=$ARCHIVE_DIR_BASE/$ARCHIVE_DIR_NAME
+REMOTE_DIR=${REMOTE_DIR:-$ARCHIVE_DIR}
 FS_ARCHIVE_FILE_NAME="${BACKUP_NAME}-${FS_STRING}-${TIMESTAMP}.tar.gz"
 MYSQL_ARCHIVE_FILE_NAME="${BACKUP_NAME}-${MYSQL_STRING}-${TIMESTAMP}.sql.gz"
 EXCLUDE_FILE=~/.donotbackup
@@ -99,11 +100,6 @@ validate_env_vars() {
 	
 	if [ -z "$REMOTE_HOST" ]; then
 		echo "REMOTE_HOST is required"
-		exit 1
-	fi
-	
-	if [ -z "$REMOTE_DIR" ]; then
-		echo "REMOTE_DIR is required"
 		exit 1
 	fi
 	
