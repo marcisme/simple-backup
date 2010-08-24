@@ -302,6 +302,12 @@ if [ "$DO_PRINT_CONFIG" ]; then
     exit 0
 fi
 
+if [ "$DO_BACKUP" -a "$DO_SYNC" ]; then
+    echo "Backup and sync options are mutually exclusive"
+    usage
+    exit 1
+fi
+
 if [ "$DO_BACKUP" ]; then
     validate_env_vars
     validate_directories
