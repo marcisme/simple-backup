@@ -1,0 +1,6 @@
+#
+# Paths in this file are relative to the directory being backed up. If backing
+# up /home/user and excluding /home/user/tmp, you would use ./tmp as shown
+# below. Using the fully qualified path would not exclide the directory.
+#
+./tmp
