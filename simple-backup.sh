@@ -2,7 +2,7 @@
 
 ##
 # A simple script to backup a file system directory and a mysql database.
-# 
+## 
 # Copyright (c) 2010, Marc Schwieterman
 # All rights reserved.
 #
@@ -69,6 +69,7 @@ DAY_OF_WEEK=$(date +%u)
 usage() {
 	echo "Usage: $(basename $0) [options]"
 	echo "  -h      help, this message"
+	echo "  -c      print configuration"
 	echo "  -v      verbose output"
 	echo "  -p      pretend, don't execute commands"
 	echo "  -b      full backup (file system and database)"
@@ -110,19 +111,17 @@ validate_env_vars() {
 }
 
 print_configuration() {
-	if [ "$VERBOSE" ]; then
-		echo "DIR_TO_BACKUP: $DIR_TO_BACKUP"
-		echo "ARCHIVE_DIR: $ARCHIVE_DIR"
-		echo "BACKUP_NAME: $BACKUP_NAME"
-		echo "MYSQL_USER: $MYSQL_USER"
-		echo "MYSQL_PASSWORD: $MYSQL_PASSWORD"
-		echo "FS_ARCHIVE_FILE_NAME: $FS_ARCHIVE_FILE_NAME"
-		echo "MYSQL_ARCHIVE_FILE_NAME: $MYSQL_ARCHIVE_FILE_NAME"
-		if [ -f "$EXCLUDE_FILE" ]; then
-			echo "Excluding:"
-			cat $EXCLUDE_FILE
-		fi
-	fi
+    echo "DIR_TO_BACKUP: $DIR_TO_BACKUP"
+    echo "ARCHIVE_DIR: $ARCHIVE_DIR"
+    echo "BACKUP_NAME: $BACKUP_NAME"
+    echo "MYSQL_USER: $MYSQL_USER"
+    echo "MYSQL_PASSWORD: $MYSQL_PASSWORD"
+    echo "FS_ARCHIVE_FILE_NAME: $FS_ARCHIVE_FILE_NAME"
+    echo "MYSQL_ARCHIVE_FILE_NAME: $MYSQL_ARCHIVE_FILE_NAME"
+    if [ -f "$EXCLUDE_FILE" ]; then
+        echo "Excluding:"
+        cat $EXCLUDE_FILE
+    fi
 }
 
 # Force a full backup if it's currently FULL_DAY_OF_WEEK.
@@ -244,11 +243,14 @@ sync_files() {
 #
 
 # process command line args
-while getopts ":hvpbfds" options; do
+while getopts ":hcvpbfds" options; do
 	case $options in
 		h)
 			usage
 			exit 0
+			;;
+		c)
+			DO_PRINT_CONFIG=1
 			;;
 		v)
 			VERBOSE=1
@@ -280,7 +282,10 @@ while getopts ":hvpbfds" options; do
 	esac
 done
 
-print_configuration
+if [ "$DO_PRINT_CONFIG" ]; then
+    print_configuration
+    exit 0
+fi
 
 if [ "$DO_BACKUP" ]; then
 	validate_env_vars
