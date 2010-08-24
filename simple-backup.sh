@@ -83,8 +83,9 @@ usage() {
 	echo "  -p      pretend, don't execute commands"
 	echo "  -b      full backup (file system and database)"
 	echo "  -s      rsync of backup files to local host"
-	echo "  -f      backup of file system"
-	echo "  -d      backup of database"
+	echo "  -f      backup file system"
+    echo "  -o      force full file system backup"
+	echo "  -d      backup database"
 }
 
 validate_env_vars() {
@@ -134,8 +135,8 @@ print_configuration() {
 }
 
 # Force a full backup if it's currently FULL_DAY_OF_WEEK.
-force_full_backup() {
-	if [ "$DAY_OF_WEEK" = "$FULL_DAY_OF_WEEK" ]; then
+force_full_backup_if_needed() {
+	if [ "$DAY_OF_WEEK" = "$FULL_DAY_OF_WEEK" -o "$DO_FORCE_FULL" ]; then
 		if [ "$VERBOSE" ]; then
 			echo "Removing $INCREMENTAL_FILE to force full backup"
 		fi
@@ -165,9 +166,11 @@ validate_directories() {
 # Symbolic links will be resolved to the files they point to if
 # DEREFERENCE is 1. A snapshot archive is stored in ARCHIVE_DIR for
 # incremental backups. Removing the file will result in a full backup.
-backup_filesystem() {
+backup_file_system() {
 	local exclude_file_arg
 	local dereference_arg
+
+	force_full_backup_if_needed
 
 	# create --exclude-from if file exists
 	if [ -f "$EXCLUDE_FILE" ]; then
@@ -183,10 +186,10 @@ backup_filesystem() {
 	fi
 
 	# display backup type
-	if [ -f "$INCREMENTAL_FILE" ]; then
-		echo "Executing partial backup"
-	else
+	if [ "$DO_FORCE_FULL" -o ! -f "$INCREMENTAL_FILE" ]; then
 		echo "Executing full backup"
+	else
+		echo "Executing partial backup"
 	fi
 
 	if [ ! "$PRETENDING" ]; then
@@ -252,7 +255,7 @@ sync_files() {
 #
 
 # process command line args
-while getopts ":hcvpbfds" options; do
+while getopts ":hcvpbfods" options; do
 	case $options in
 		h)
 			usage
@@ -271,6 +274,9 @@ while getopts ":hcvpbfds" options; do
 			DO_FS_BACKUP=1
 			DO_DB_BACKUP=1
 			DO_BACKUP=1
+			;;
+		o)
+			DO_FORCE_FULL=1
 			;;
 		f)
 			DO_FS_BACKUP=1
@@ -307,8 +313,7 @@ if [ "$DO_BACKUP" ]; then
 	fi
 	
 	if [ "$DO_FS_BACKUP" ]; then
-		force_full_backup
-		backup_filesystem
+		backup_file_system
 	fi
 	
 	if [ "$DO_DB_BACKUP" ]; then
