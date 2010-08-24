@@ -77,15 +77,25 @@ DAY_OF_WEEK=$(date +%u)
 
 usage() {
     echo "Usage: $(basename $0) [options]"
+    echo ""
+    echo "General options:"
+    echo ""
     echo "  -h      help, this message"
     echo "  -c      print configuration"
     echo "  -v      verbose output"
     echo "  -p      pretend, don't execute commands"
-    echo "  -b      full backup (file system and database)"
-    echo "  -s      rsync of backup files to local host"
+    echo ""
+    echo "Backup options:"
+    echo ""
+    echo "  -b      backup both file system and database"
     echo "  -f      backup file system"
-    echo "  -o      force full file system backup"
     echo "  -d      backup database"
+    echo "  -o      force full file system backup"
+    echo ""
+    echo "Sync options:"
+    echo ""
+    echo "  -s      rsync backup files to local host"
+    echo ""
 }
 
 validate_env_vars() {
