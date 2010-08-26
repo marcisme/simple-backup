@@ -157,6 +157,8 @@ force_full_backup_if_needed() {
 }
 
 # Validate needed directories and create them if needed and possible.
+# Will not create nested directories, so the ARCHIVE_DIR must reside
+# in an existing directory, or it will need to be created manually.
 validate_directories() {
     if [ ! -d "$DIR_TO_BACKUP" ]; then
         echo "DIR_TO_BACKUP: ${DIR_TO_BACKUP} does not exist"
@@ -166,13 +168,13 @@ validate_directories() {
     if [ ! -d "$ARCHIVE_DIR" ]; then
         echo "Creating backup dir: $ARCHIVE_DIR"
         if [ ! "$PRETENDING" ]; then
-            mkdir -p $ARCHIVE_DIR
+            mkdir $ARCHIVE_DIR
         fi
     fi
 }
 
 # Backup the configured directory to a tarball. The ARCHIVE_DIR is
-# excluded, along with any files in the user's ~/.donotbackup file.
+# excluded, along with any files in the user's EXCLUDE_FILE file.
 # Symbolic links will be resolved to the files they point to if
 # DEREFERENCE is 1. A snapshot archive is stored in ARCHIVE_DIR for
 # incremental backups. Removing the file will result in a full backup.
