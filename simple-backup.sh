@@ -208,7 +208,7 @@ backup_file_system() {
         $TAR --create \
             --file $FS_ARCHIVE_FILE \
             --listed-incremental $INCREMENTAL_FILE \
-            --exclude $ARCHIVE_DIR \
+            --exclude $(basename $ARCHIVE_DIR) \
             $exclude_file_arg \
             $dereference_arg \
             --gzip \
