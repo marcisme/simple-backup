@@ -212,8 +212,8 @@ backup_file_system() {
             $exclude_file_arg \
             $dereference_arg \
             --gzip \
-            --directory $DIR_TO_BACKUP \
-            .
+            --directory $(dirname $DIR_TO_BACKUP) \
+            $(basename $DIR_TO_BACKUP)
     fi
 }
 
