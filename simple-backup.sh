@@ -233,9 +233,9 @@ remove_old_backups() {
     local retention_days=$2
     echo "Removing files older than $retention_days days from $archive_dir"
     if [ ! "$PRETENDING" ]; then
-        find $archive_dir -name *.gz -mtime +${retention_days} -exec rm -v {} \;
+        find $archive_dir -name \*.gz -mtime +${retention_days} -exec rm -v {} \;
     elif [ -d "$archive_dir" ]; then
-        find $archive_dir -name *.gz -mtime +${retention_days}
+        find $archive_dir -name \*.gz -mtime +${retention_days}
     fi
 }
 
