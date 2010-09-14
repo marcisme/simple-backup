@@ -60,7 +60,6 @@ TIMESTAMP_FORMAT=${TIMESTAMP_FORMAT:-'%Y%m%d.%H%M%S'}
 TIMESTAMP=$(date +$TIMESTAMP_FORMAT)
 
 # default options
-DEREFERENCE=${DEREFERENCE:-0}
 FULL_DAY_OF_WEEK=${FULL_DAY_OF_WEEK:-5}
 
 # paths and files
@@ -176,26 +175,16 @@ validate_directories() {
 
 # Backup the configured directory to a tarball. The ARCHIVE_DIR is
 # excluded, along with any files in the user's EXCLUDE_FILE file.
-# Symbolic links will be resolved to the files they point to if
-# DEREFERENCE is 1. A snapshot archive is stored in ARCHIVE_DIR for
+# A snapshot archive is stored in ARCHIVE_DIR for
 # incremental backups. Removing the file will result in a full backup.
 backup_file_system() {
     local exclude_file_arg
-    local dereference_arg
 
     force_full_backup_if_needed
 
     # create --exclude-from if file exists
     if [ -f "$EXCLUDE_FILE" ]; then
         exclude_file_arg="--exclude-from $EXCLUDE_FILE"
-    fi
-
-    # create --dereference if option set
-    if [ "$DEREFERENCE" -eq 1 ]; then
-        if [ "$VERBOSE" ]; then
-            echo "Symbolic links will be resolved to target files"
-        fi
-        dereference_arg="--dereference"
     fi
 
     # display backup type
@@ -211,7 +200,6 @@ backup_file_system() {
             --listed-incremental $INCREMENTAL_FILE \
             --exclude $(basename $ARCHIVE_DIR) \
             $exclude_file_arg \
-            $dereference_arg \
             --gzip \
             --directory $(dirname $DIR_TO_BACKUP) \
             $(basename $DIR_TO_BACKUP)
