@@ -31,12 +31,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 ##
 
-if [ ! -f ~/.backuprc ]; then
+BACKUPRC=${BACKUPRC:-~/.backuprc}
+if [ ! -f "$BACKUPRC" ]; then
     echo "You must create .backuprc in your home directory"
     exit 1
 fi
 
-source ~/.backuprc
+source $BACKUPRC
 
 # default programs
 TAR=${TAR:-tar}
