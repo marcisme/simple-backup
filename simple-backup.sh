@@ -44,15 +44,6 @@ TAR=${TAR:-tar}
 MYSQLDUMP=${MYSQLDUMP:-mysqldump}
 RSYNC=${RSYNC:-rsync}
 
-# default retention policies
-LOCAL_RETENTION_DAYS=${LOCAL_RETENTION_DAYS:-30}
-REMOTE_RETENTION_DAYS=${REMOTE_RETENTION_DAYS:-$LOCAL_RETENTION_DAYS}
-
-# default locations
-DIR_TO_BACKUP=${DIR_TO_BACKUP:-$HOME}
-ARCHIVE_DIR_BASE=${ARCHIVE_DIR_BASE:-$HOME}
-ARCHIVE_DIR_NAME=${ARCHIVE_DIR_NAME:-backups}
-
 # default formatting
 FS_STRING=${FS_STRING:-fs}
 MYSQL_STRING=${MYSQL_STRING:-mysql}
@@ -62,15 +53,24 @@ TIMESTAMP=$(date +$TIMESTAMP_FORMAT)
 # default options
 FULL_DAY_OF_WEEK=${FULL_DAY_OF_WEEK:-5}
 
+# default retention policies
+LOCAL_RETENTION_DAYS=${LOCAL_RETENTION_DAYS:-30}
+REMOTE_RETENTION_DAYS=${REMOTE_RETENTION_DAYS:-$LOCAL_RETENTION_DAYS}
+
+# default locations
+DIR_TO_BACKUP=${DIR_TO_BACKUP:-$HOME}
+ARCHIVE_DIR_BASE=${ARCHIVE_DIR_BASE:-$HOME}
+ARCHIVE_DIR_NAME=${ARCHIVE_DIR_NAME:-backups}
+
 # paths and files
-ARCHIVE_DIR=$ARCHIVE_DIR_BASE/$ARCHIVE_DIR_NAME
-REMOTE_DIR=${REMOTE_DIR:-$ARCHIVE_DIR}
+REMOTE_ARCHIVE_DIR=$ARCHIVE_DIR_BASE/$ARCHIVE_DIR_NAME
+LOCAL_ARCHIVE_DIR=${LOCAL_ARCHIVE_DIR:-$LOCAL_ARCHIVE_DIR}
 FS_ARCHIVE_FILE_NAME="${BACKUP_NAME}-${FS_STRING}-${TIMESTAMP}.tar.gz"
 MYSQL_ARCHIVE_FILE_NAME="${BACKUP_NAME}-${MYSQL_STRING}-${TIMESTAMP}.sql.gz"
 EXCLUDE_FILE=~/.donotbackup
-INCREMENTAL_FILE=$ARCHIVE_DIR/incremental.snar
-FS_ARCHIVE_FILE=$ARCHIVE_DIR/$FS_ARCHIVE_FILE_NAME
-MYSQL_ARCHIVE_FILE=$ARCHIVE_DIR/$MYSQL_ARCHIVE_FILE_NAME
+INCREMENTAL_FILE=$REMOTE_ARCHIVE_DIR/incremental.snar
+FS_ARCHIVE_FILE=$REMOTE_ARCHIVE_DIR/$FS_ARCHIVE_FILE_NAME
+MYSQL_ARCHIVE_FILE=$REMOTE_ARCHIVE_DIR/$MYSQL_ARCHIVE_FILE_NAME
 
 # internal values
 DAY_OF_WEEK=$(date +%u)
@@ -123,16 +123,11 @@ validate_env_vars() {
         echo "REMOTE_HOST is required"
         exit 1
     fi
-    
-    if [ -z "$LOCAL_DIR" ]; then
-        echo "LOCAL_DIR is required"
-        exit 1
-    fi
 }
 
 print_configuration() {
     echo "DIR_TO_BACKUP: $DIR_TO_BACKUP"
-    echo "ARCHIVE_DIR: $ARCHIVE_DIR"
+    echo "REMOTE_ARCHIVE_DIR: $REMOTE_ARCHIVE_DIR"
     echo "BACKUP_NAME: $BACKUP_NAME"
     echo "MYSQL_USER: $MYSQL_USER"
     echo "MYSQL_PASSWORD: $MYSQL_PASSWORD"
@@ -157,7 +152,7 @@ force_full_backup_if_needed() {
 }
 
 # Validate needed directories and create them if needed and possible.
-# Will not create nested directories, so the ARCHIVE_DIR must reside
+# Will not create nested directories, so the REMOTE_ARCHIVE_DIR must reside
 # in an existing directory, or it will need to be created manually.
 validate_directories() {
     if [ ! -d "$DIR_TO_BACKUP" ]; then
@@ -165,17 +160,17 @@ validate_directories() {
         exit 1
     fi 
 
-    if [ ! -d "$ARCHIVE_DIR" ]; then
-        echo "Creating backup dir: $ARCHIVE_DIR"
+    if [ ! -d "$REMOTE_ARCHIVE_DIR" ]; then
+        echo "Creating backup dir: $REMOTE_ARCHIVE_DIR"
         if [ ! "$PRETENDING" ]; then
-            mkdir $ARCHIVE_DIR
+            mkdir $REMOTE_ARCHIVE_DIR
         fi
     fi
 }
 
-# Backup the configured directory to a tarball. The ARCHIVE_DIR is
+# Backup the configured directory to a tarball. The REMOTE_ARCHIVE_DIR is
 # excluded, along with any files in the user's EXCLUDE_FILE file.
-# A snapshot archive is stored in ARCHIVE_DIR for
+# A snapshot archive is stored in REMOTE_ARCHIVE_DIR for
 # incremental backups. Removing the file will result in a full backup.
 backup_file_system() {
     local exclude_file_arg
@@ -198,7 +193,7 @@ backup_file_system() {
         $TAR --create \
             --file $FS_ARCHIVE_FILE \
             --listed-incremental $INCREMENTAL_FILE \
-            --exclude $(basename $ARCHIVE_DIR) \
+            --exclude $(basename $REMOTE_ARCHIVE_DIR) \
             $exclude_file_arg \
             --gzip \
             --directory $(dirname $DIR_TO_BACKUP) \
@@ -248,7 +243,7 @@ sync_files() {
         --rsh=ssh \
         $list_only_arg \
         $verbose_arg \
-        $REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR/ $LOCAL_DIR
+        $REMOTE_USER@$REMOTE_HOST:$REMOTE_ARCHIVE_DIR/ $LOCAL_ARCHIVE_DIR
 }
 
 #
@@ -327,7 +322,7 @@ if [ "$DO_BACKUP" ]; then
         backup_database
     fi
     
-    remove_old_backups $ARCHIVE_DIR $REMOTE_RETENTION_DAYS
+    remove_old_backups $REMOTE_ARCHIVE_DIR $REMOTE_RETENTION_DAYS
     
     echo "Backup completed at $(date)"
     exit 0
@@ -335,7 +330,7 @@ fi
 
 if [ "$DO_SYNC" ]; then
     sync_files
-    remove_old_backups $LOCAL_DIR $LOCAL_RETENTION_DAYS
+    remove_old_backups $LOCAL_ARCHIVE_DIR $LOCAL_RETENTION_DAYS
     exit 0
 fi
 
