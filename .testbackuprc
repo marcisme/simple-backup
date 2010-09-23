@@ -1,0 +1,9 @@
+BACKUP_NAME=backup_name
+MYSQL_USER=mysql_user
+MYSQL_PASSWORD=mysql_password
+REMOTE_USER=marc
+REMOTE_HOST=localhost
+DIR_TO_BACKUP=$(pwd)/.test/remote/home
+REMOTE_ARCHIVE_DIR=$(pwd)/.test/remote/home/backup
+LOCAL_ARCHIVE_DIR=$(pwd)/.test/local/home/backup
+TAR=gnutar

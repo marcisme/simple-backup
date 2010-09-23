@@ -1,2 +1,2 @@
-# vi swap files
-*.swp
+.test/local/
+.test/remote/
