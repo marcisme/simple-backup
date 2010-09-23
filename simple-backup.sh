@@ -335,5 +335,8 @@ if [ "$DO_SYNC" ]; then
     exit 0
 fi
 
-usage
+# prevent usage from running when sourced
+if [ $(basename "$0") = "simple-backup.sh" ]; then
+    usage
+fi
 
