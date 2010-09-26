@@ -227,10 +227,7 @@ remove_old_backups() {
 # Sync files from remote host to local directory. Requires key-based
 # ssh authentication.
 sync_files() {
-    if [ ! "$PRETENDING" ]; then
-        # set the environment up so we don't have to type our passphrase
-        eval $(ssh-agent)
-    else
+    if [ "$PRETENDING" ]; then
         local list_only_arg="--list-only"
     fi
 
@@ -238,7 +235,7 @@ sync_files() {
         local verbose_arg="--verbose"
     fi
     
-    $RSYNC \
+    ssh-agent $RSYNC \
         --archive \
         --compress \
         --rsh=ssh \
