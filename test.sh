@@ -22,6 +22,8 @@ export DIR_TO_BACKUP
 export ARCHIVE_DIR_BASE
 export ARCHIVE_DIR_NAME
 export FULL_DAY_OF_WEEK
+export TIMESTAMP
+export LAST_BACKUP_FILE
 
 ruby simple-backup-test.rb
 

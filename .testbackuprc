@@ -7,3 +7,4 @@ DIR_TO_BACKUP=$(pwd)/.test/remote/home
 REMOTE_ARCHIVE_DIR=$(pwd)/.test/remote/home/backup
 LOCAL_ARCHIVE_DIR=$(pwd)/.test/local/home/backup
 TAR=gnutar
+TIMESTAMP=1234.5678

@@ -80,6 +80,10 @@ class SimpleBackupTest < Test::Unit::TestCase
         assert_equal('$(pwd)/.test/local/home/backup', config('LOCAL_ARCHIVE_DIR'))
     end
 
+    def test_timestamp_from_backuprc
+        assert_equal('1234.5678', config('TIMESTAMP'))
+    end
+
     def test_tar_from_env
         assert_equal('gnutar', ENV['TAR'])
     end
@@ -116,6 +120,10 @@ class SimpleBackupTest < Test::Unit::TestCase
         assert_equal(Dir.pwd+'/.test/local/home/backup', ENV['LOCAL_ARCHIVE_DIR'])
     end
 
+    def test_timestamp_from_env
+        assert_equal('1234.5678', ENV['TIMESTAMP'])
+    end
+
     def test_full_day_of_week
         assert_equal(5, ENV['FULL_DAY_OF_WEEK'].to_i)
     end
@@ -135,6 +143,10 @@ class SimpleBackupTest < Test::Unit::TestCase
     def test_exclude_file_contents
         exclude_file = Rush.dir(__FILE__)[ENV['EXCLUDE_FILE']]
         assert(exclude_file.lines.include? 'tmp')
+    end
+
+    def test_last_backup_file
+        assert_equal(Dir.pwd+'/.test/remote/home/backup/last_backup', ENV['LAST_BACKUP_FILE'])
     end
 
     # acceptance tests
@@ -207,6 +219,14 @@ class SimpleBackupTest < Test::Unit::TestCase
         assert(@local_archive_dir['file_one'].exists?)
         assert(@local_archive_dir['file_two'].exists?)
         assert(@local_archive_dir['file_three'].exists?)
+    end
+
+    def test_last_backup
+        init_backup_dirs
+
+        backup_filesystem
+
+        assert(@remote_archive_dir['last_backup'].search(/1234\.5678/))
     end
 
 end
