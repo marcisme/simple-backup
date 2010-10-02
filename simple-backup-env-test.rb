@@ -16,6 +16,7 @@ class SimpleBackupEnvTest < Test::Unit::TestCase
             k, v = line.split("=")
             return v if k == key
         end
+        return nil
     end
 
     # These tests just make sure that the test backuprc file has
@@ -46,16 +47,12 @@ class SimpleBackupEnvTest < Test::Unit::TestCase
         assert_equal('localhost', config('REMOTE_HOST'))
     end
 
-    def test_dir_to_backup_from_backuprc
-        assert_equal('$(pwd)/.test/remote/home', config('DIR_TO_BACKUP'))
+    def test_remote_home_from_backuprc
+        assert_equal('$(pwd)/.test/remote/home', config('REMOTE_HOME'))
     end
 
-    def test_remote_archive_dir_from_backuprc
-        assert_equal('$(pwd)/.test/remote/home/backup', config('REMOTE_ARCHIVE_DIR'))
-    end
-
-    def test_local_archive_dir_from_backuprc
-        assert_equal('$(pwd)/.test/local/home/backup', config('LOCAL_ARCHIVE_DIR'))
+    def test_local_home_from_backuprc
+        assert_equal('$(pwd)/.test/local/home', config('LOCAL_HOME'))
     end
 
     def test_timestamp_from_backuprc
@@ -86,16 +83,24 @@ class SimpleBackupEnvTest < Test::Unit::TestCase
         assert_equal('localhost', ENV['REMOTE_HOST'])
     end
 
+    def test_remote_home_from_env
+        assert_equal(Dir.pwd+'/.test/remote/home', ENV['REMOTE_HOME'])
+    end
+
+    def test_local_home_from_env
+        assert_equal(Dir.pwd+'/.test/local/home', ENV['LOCAL_HOME'])
+    end
+
     def test_dir_to_backup_from_env
         assert_equal(Dir.pwd+'/.test/remote/home', ENV['DIR_TO_BACKUP'])
     end
 
     def test_remote_archive_dir_from_env
-        assert_equal(Dir.pwd+'/.test/remote/home/backup', ENV['REMOTE_ARCHIVE_DIR'])
+        assert_equal(Dir.pwd+'/.test/remote/home/backups', ENV['REMOTE_ARCHIVE_DIR'])
     end
 
     def test_local_archive_dir_from_env
-        assert_equal(Dir.pwd+'/.test/local/home/backup', ENV['LOCAL_ARCHIVE_DIR'])
+        assert_equal(Dir.pwd+'/.test/local/home/backups', ENV['LOCAL_ARCHIVE_DIR'])
     end
 
     def test_timestamp_from_env
@@ -124,7 +129,7 @@ class SimpleBackupEnvTest < Test::Unit::TestCase
     end
 
     def test_last_backup_file
-        assert_equal(Dir.pwd+'/.test/remote/home/backup/last_backup', ENV['LAST_BACKUP_FILE'])
+        assert_equal(Dir.pwd+'/.test/remote/home/backups/last_backup', ENV['LAST_BACKUP_FILE'])
     end
 
 end
