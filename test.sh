@@ -25,6 +25,8 @@ export ARCHIVE_DIR_NAME
 export FULL_DAY_OF_WEEK
 export TIMESTAMP
 export LAST_BACKUP_FILE
+export REMOTE_SCRIPT_FILE
+export LOCAL_SCRIPT_FILE
 
 ruby simple-backup-env-test.rb
 

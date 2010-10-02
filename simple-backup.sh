@@ -43,6 +43,7 @@ source $BACKUPRC
 TAR=${TAR:-tar}
 MYSQLDUMP=${MYSQLDUMP:-mysqldump}
 RSYNC=${RSYNC:-rsync}
+SCRIPT_FILE=simple-backup.sh
 
 # default formatting
 FS_STRING=${FS_STRING:-fs}
@@ -60,10 +61,12 @@ REMOTE_RETENTION_DAYS=${REMOTE_RETENTION_DAYS:-$LOCAL_RETENTION_DAYS}
 # default locations
 REMOTE_HOME=${REMOTE_HOME:-$HOME}
 REMOTE_BIN=${REMOTE_BIN:-$REMOTE_HOME/bin}
+REMOTE_SCRIPT_FILE=$REMOTE_BIN/$SCRIPT_FILE
 DIR_TO_BACKUP=${DIR_TO_BACKUP:-$REMOTE_HOME}
 ARCHIVE_DIR_NAME=${ARCHIVE_DIR_NAME:-backups}
 LOCAL_HOME=${LOCAL_HOME:-$HOME}
 LOCAL_BIN=${LOCAL_BIN:-$LOCAL_HOME/bin}
+LOCAL_SCRIPT_FILE=$LOCAL_BIN/$SCRIPT_FILE
 
 # paths and files
 REMOTE_ARCHIVE_DIR=${REMOTE_ARCHIVE_DIR:-$REMOTE_HOME/$ARCHIVE_DIR_NAME}
@@ -91,6 +94,7 @@ usage() {
     echo ""
     echo "Backup options:"
     echo ""
+    echo "  -u      upload script files to remote host"
     echo "  -b      backup both file system and database"
     echo "  -f      backup file system"
     echo "  -d      backup database"
@@ -238,7 +242,7 @@ sync_files() {
         local verbose_arg="--verbose"
     fi
     
-    ssh-agent $RSYNC \
+    $RSYNC \
         --archive \
         --compress \
         --rsh=ssh \
@@ -247,12 +251,31 @@ sync_files() {
         $REMOTE_USER@$REMOTE_HOST:$REMOTE_ARCHIVE_DIR/ $LOCAL_ARCHIVE_DIR
 }
 
+deploy() {
+    local local_backuprc=$LOCAL_HOME/.backuprc
+    local remote_backuprc=$REMOTE_HOME/.backuprc
+    local local_backupexclude=$LOCAL_HOME/.backupexclude
+    local remote_backupexclude=$REMOTE_HOME/.backupexclude
+    if [ "$PRETENDING" ]; then
+        echo "Running in pretend mode."
+        echo "deploying $local_backuprc to $remote_backuprc"
+        echo "deploying $local_backupexclude to $remote_backupexclude"
+        echo "deploying $LOCAL_SCRIPT_FILE to $REMOTE_SCRIPT_FILE"
+    else
+        scp $local_backuprc $REMOTE_USER@$REMOTE_HOST:$remote_backuprc
+        if [ -f "$local_backupexclude" ]; then
+            scp $local_backupexclude $REMOTE_USER@$REMOTE_HOST:$remote_backupexclude
+        fi
+        scp $LOCAL_SCRIPT_FILE $REMOTE_USER@$REMOTE_HOST:$REMOTE_SCRIPT_FILE
+    fi
+}
+
 #
 # main script
 #
 
 # process command line args
-while getopts ":hcvpbfods" options; do
+while getopts ":hcvpbfodsu" options; do
     case $options in
         h)
             usage
@@ -286,6 +309,9 @@ while getopts ":hcvpbfods" options; do
         s)
             DO_SYNC=1
             ;;
+        u)
+            DO_DEPLOY=1
+            ;;
         *)
             echo "unknown option: $OPTARG"
             usage
@@ -296,6 +322,11 @@ done
 
 if [ "$DO_PRINT_CONFIG" ]; then
     print_configuration
+    exit 0
+fi
+
+if [ "$DO_DEPLOY" ]; then
+    deploy
     exit 0
 fi
 
@@ -338,7 +369,7 @@ if [ "$DO_SYNC" ]; then
 fi
 
 # prevent usage from running when sourced
-if [ $(basename "$0") = "simple-backup.sh" ]; then
+if [ $(basename "$0") = "$SCRIPT_FILE" ]; then
     usage
 fi
 

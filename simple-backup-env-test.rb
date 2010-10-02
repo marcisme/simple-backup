@@ -123,6 +123,14 @@ class SimpleBackupEnvTest < Test::Unit::TestCase
         assert_equal('.testbackupexclude', ENV['EXCLUDE_FILE'])
     end
 
+    def test_remote_script_file_from_env
+        assert_equal(Dir.pwd+'/.test/remote/home/bin/simple-backup.sh', ENV['REMOTE_SCRIPT_FILE'])
+    end
+
+    def test_local_script_file_from_env
+        assert_equal(Dir.pwd+'/.test/local/home/bin/simple-backup.sh', ENV['LOCAL_SCRIPT_FILE'])
+    end
+
     def test_exclude_file_contents
         exclude_file = Rush.dir(__FILE__)[ENV['EXCLUDE_FILE']]
         assert(exclude_file.lines.include? 'tmp')

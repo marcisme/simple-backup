@@ -120,4 +120,29 @@ class SimpleBackupTest < Test::Unit::TestCase
         assert(@remote_archive_dir['last_backup'].search(/1234\.5678/))
     end
 
+    def test_deploy
+        init_backup_dirs
+
+        remote_home = Rush[ENV['REMOTE_HOME']]
+        remote_home.create_dir('bin')
+        remote_bin = remote_home['bin']
+        local_home = Rush[ENV['LOCAL_HOME']]
+        local_home.create_dir('bin')
+        local_bin = local_home['bin']
+
+        local_home.create_file '.backuprc'
+        local_home.create_file '.backupexclude'
+        local_bin.create_file 'simple-backup.sh'
+
+        assert(!remote_home['.backuprc'].exists?)
+        assert(!remote_home['.backupexclude'].exists?)
+        assert(!remote_bin['simple-backup.sh'].exists?)
+
+        system './simple-backup.sh -u &>/dev/null'
+
+        assert(remote_home['.backuprc'].exists?)
+        assert(remote_home['.backupexclude'].exists?)
+        assert(remote_bin['simple-backup.sh'].exists?)
+    end
+
 end
