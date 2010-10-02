@@ -25,5 +25,12 @@ export FULL_DAY_OF_WEEK
 export TIMESTAMP
 export LAST_BACKUP_FILE
 
+ruby simple-backup-env-test.rb
+
+if [ "$?" -ne 0 ]; then
+    echo "ENV test failed, aborting..."
+    exit 1
+fi
+
 ruby simple-backup-test.rb
 
