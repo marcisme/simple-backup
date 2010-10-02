@@ -43,6 +43,7 @@ source $BACKUPRC
 TAR=${TAR:-tar}
 MYSQLDUMP=${MYSQLDUMP:-mysqldump}
 RSYNC=${RSYNC:-rsync}
+SCP=${SCP:-scp}
 
 # names and formatting
 SCRIPT_NAME=simple-backup.sh
@@ -262,11 +263,11 @@ deploy() {
         echo "deploying $local_backupexclude to $remote_backupexclude"
         echo "deploying $LOCAL_SCRIPT_FILE to $REMOTE_SCRIPT_FILE"
     else
-        scp $local_backuprc $REMOTE_USER@$REMOTE_HOST:$remote_backuprc
+        $SCP $local_backuprc $REMOTE_USER@$REMOTE_HOST:$remote_backuprc
         if [ -f "$local_backupexclude" ]; then
-            scp $local_backupexclude $REMOTE_USER@$REMOTE_HOST:$remote_backupexclude
+            $SCP $local_backupexclude $REMOTE_USER@$REMOTE_HOST:$remote_backupexclude
         fi
-        scp $LOCAL_SCRIPT_FILE $REMOTE_USER@$REMOTE_HOST:$REMOTE_SCRIPT_FILE
+        $SCP $LOCAL_SCRIPT_FILE $REMOTE_USER@$REMOTE_HOST:$REMOTE_SCRIPT_FILE
     fi
 }
 
