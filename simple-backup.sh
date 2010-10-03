@@ -105,7 +105,7 @@ usage() {
     echo "  -f      backup file system"
     echo "  -d      backup database"
     echo "  -o      force full file system backup"
-    echo "  -n      notify if there has been a backup failure"
+    echo "  -n      notify if there has been a missed backup"
     echo ""
     echo "Sync options:"
     echo ""
@@ -141,13 +141,18 @@ validate_env_vars() {
 }
 
 print_configuration() {
+    echo "REMOTE_HOST: $REMOTE_HOST"
+    echo "REMOTE_USER: $REMOTE_USER"
     echo "DIR_TO_BACKUP: $DIR_TO_BACKUP"
     echo "REMOTE_ARCHIVE_DIR: $REMOTE_ARCHIVE_DIR"
-    echo "BACKUP_NAME: $BACKUP_NAME"
+    echo "LOCAL_ARCHIVE_DIR: $LOCAL_ARCHIVE_DIR"
     echo "MYSQL_USER: $MYSQL_USER"
     echo "MYSQL_PASSWORD: $MYSQL_PASSWORD"
+    echo "BACKUP_NAME: $BACKUP_NAME"
     echo "FS_ARCHIVE_FILE_NAME: $FS_ARCHIVE_FILE_NAME"
     echo "MYSQL_ARCHIVE_FILE_NAME: $MYSQL_ARCHIVE_FILE_NAME"
+    echo "REMOTE_RETENTION_DAYS: $REMOTE_RETENTION_DAYS"
+    echo "LOCAL_RETENTION_DAYS: $LOCAL_RETENTION_DAYS"
     if [ -f "$EXCLUDE_FILE" ]; then
         echo "Excluding:"
         cat $EXCLUDE_FILE

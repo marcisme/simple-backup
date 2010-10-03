@@ -147,6 +147,16 @@ class SimpleBackupTest < Test::Unit::TestCase
         assert(remote_bin['simple-backup.sh'].exists?)
     end
 
+    def test_no_notification
+        init_backup_dirs
+
+        @local_archive_dir['last_backup'] << ENV['TIMESTAMP']
+
+        rc = system "#{SIMPLE_BACKUP} -n &>/dev/null"
+
+        assert(rc)
+    end
+
     # This test will result in a growlnotify notification
     def test_notification
         init_backup_dirs
