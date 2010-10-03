@@ -8,6 +8,8 @@ require 'rush'
 #
 class SimpleBackupTest < Test::Unit::TestCase
 
+    SIMPLE_BACKUP='../simple-backup.sh'
+
     # utility
 
     def config(key)
@@ -33,11 +35,11 @@ class SimpleBackupTest < Test::Unit::TestCase
     end
 
     def backup_filesystem
-        system './simple-backup.sh -f &>/dev/null'
+        system "#{SIMPLE_BACKUP} -f &>/dev/null"
     end
 
     def sync_files
-        system './simple-backup.sh -s &>/dev/null'
+        system "#{SIMPLE_BACKUP} -s &>/dev/null"
     end
 
     # acceptance tests
@@ -138,7 +140,7 @@ class SimpleBackupTest < Test::Unit::TestCase
         assert(!remote_home['.backupexclude'].exists?)
         assert(!remote_bin['simple-backup.sh'].exists?)
 
-        system './simple-backup.sh -u &>/dev/null'
+        system "#{SIMPLE_BACKUP} -u &>/dev/null"
 
         assert(remote_home['.backuprc'].exists?)
         assert(remote_home['.backupexclude'].exists?)
@@ -151,7 +153,7 @@ class SimpleBackupTest < Test::Unit::TestCase
 
         @local_archive_dir['last_backup'] << "19781220.000000"
 
-        rc = system './simple-backup.sh -n &>/dev/null'
+        rc = system "#{SIMPLE_BACKUP} -n &>/dev/null"
 
         assert(!rc)
     end

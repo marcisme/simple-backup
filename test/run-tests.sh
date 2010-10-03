@@ -5,7 +5,7 @@ export BACKUPRC=.testbackuprc
 export EXCLUDE_FILE=.testbackupexclude
 
 # pull in environment variables, so we can test them
-source ./simple-backup.sh
+source ../simple-backup.sh
 
 # export variables we want to test
 export TAR
