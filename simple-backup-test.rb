@@ -117,7 +117,7 @@ class SimpleBackupTest < Test::Unit::TestCase
 
         backup_filesystem
 
-        assert(@remote_archive_dir['last_backup'].search(/1234\.5678/))
+        assert(@remote_archive_dir['last_backup'].search(/20100101\.000000/))
     end
 
     def test_deploy
@@ -143,6 +143,17 @@ class SimpleBackupTest < Test::Unit::TestCase
         assert(remote_home['.backuprc'].exists?)
         assert(remote_home['.backupexclude'].exists?)
         assert(remote_bin['simple-backup.sh'].exists?)
+    end
+
+    # This test will result in a growlnotify notification
+    def test_notification
+        init_backup_dirs
+
+        @local_archive_dir['last_backup'] << "19781220.000000"
+
+        rc = system './simple-backup.sh -n &>/dev/null'
+
+        assert(!rc)
     end
 
 end

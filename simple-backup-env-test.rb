@@ -56,7 +56,7 @@ class SimpleBackupEnvTest < Test::Unit::TestCase
     end
 
     def test_timestamp_from_backuprc
-        assert_equal('1234.5678', config('TIMESTAMP'))
+        assert_equal('20100101.000000', config('TIMESTAMP'))
     end
 
     def test_tar_from_env
@@ -104,7 +104,7 @@ class SimpleBackupEnvTest < Test::Unit::TestCase
     end
 
     def test_timestamp_from_env
-        assert_equal('1234.5678', ENV['TIMESTAMP'])
+        assert_equal('20100101.000000', ENV['TIMESTAMP'])
     end
 
     def test_full_day_of_week
@@ -136,8 +136,20 @@ class SimpleBackupEnvTest < Test::Unit::TestCase
         assert(exclude_file.lines.include? 'tmp')
     end
 
-    def test_last_backup_file
-        assert_equal(Dir.pwd+'/.test/remote/home/backups/last_backup', ENV['LAST_BACKUP_FILE'])
+    def test_remote_last_backup_file_from_env
+        assert_equal(Dir.pwd+'/.test/remote/home/backups/last_backup', ENV['REMOTE_LAST_BACKUP_FILE'])
+    end
+
+    def test_remote_last_backup_file_from_env
+        assert_equal(Dir.pwd+'/.test/local/home/backups/last_backup', ENV['LOCAL_LAST_BACKUP_FILE'])
+    end
+
+    def test_notification_hours
+        assert_equal(25, ENV['NOTIFICATION_HOURS'].to_i)
+    end
+
+    def test_notification_seconds
+        assert_equal(90000, ENV['NOTIFICATION_SECONDS'].to_i)
     end
 
 end

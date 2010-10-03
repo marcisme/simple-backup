@@ -44,6 +44,7 @@ TAR=${TAR:-tar}
 MYSQLDUMP=${MYSQLDUMP:-mysqldump}
 RSYNC=${RSYNC:-rsync}
 SCP=${SCP:-scp}
+GROWLNOTIFY=${GROWLNOTIFY:-growlnotify}
 
 # names and formatting
 SCRIPT_NAME=simple-backup.sh
@@ -54,9 +55,12 @@ TIMESTAMP=${TIMESTAMP:-$(date +$TIMESTAMP_FORMAT)}
 ARCHIVE_DIR_NAME=${ARCHIVE_DIR_NAME:-backups}
 FS_ARCHIVE_FILE_NAME="${BACKUP_NAME}-${FS_STRING}-${TIMESTAMP}.tar.gz"
 MYSQL_ARCHIVE_FILE_NAME="${BACKUP_NAME}-${MYSQL_STRING}-${TIMESTAMP}.sql.gz"
+LAST_BACKUP_FILE_NAME=last_backup
 
 # options
 FULL_DAY_OF_WEEK=${FULL_DAY_OF_WEEK:-5} # Friday
+NOTIFICATION_HOURS=${NOTIFICATION_HOURS:-25}
+NOTIFICATION_SECONDS=$(($NOTIFICATION_HOURS*60*60))
 
 # retention policies
 REMOTE_RETENTION_DAYS=${REMOTE_RETENTION_DAYS:-30}
@@ -72,13 +76,14 @@ INCREMENTAL_FILE=$REMOTE_ARCHIVE_DIR/incremental.snar
 FS_ARCHIVE_FILE=$REMOTE_ARCHIVE_DIR/$FS_ARCHIVE_FILE_NAME
 EXCLUDE_FILE=${EXCLUDE_FILE:-~/.backupexcludes}
 MYSQL_ARCHIVE_FILE=$REMOTE_ARCHIVE_DIR/$MYSQL_ARCHIVE_FILE_NAME
-LAST_BACKUP_FILE=$REMOTE_ARCHIVE_DIR/last_backup
+REMOTE_LAST_BACKUP_FILE=$REMOTE_ARCHIVE_DIR/$LAST_BACKUP_FILE_NAME
 
 # local paths and files
 LOCAL_HOME=${LOCAL_HOME:-$HOME}
 LOCAL_BIN=${LOCAL_BIN:-$LOCAL_HOME/bin}
 LOCAL_SCRIPT_FILE=$LOCAL_BIN/$SCRIPT_NAME
 LOCAL_ARCHIVE_DIR=${LOCAL_ARCHIVE_DIR:-$LOCAL_HOME/$ARCHIVE_DIR_NAME}
+LOCAL_LAST_BACKUP_FILE=$LOCAL_ARCHIVE_DIR/$LAST_BACKUP_FILE_NAME
 
 # internal values
 DAY_OF_WEEK=$(date +%u)
@@ -100,6 +105,7 @@ usage() {
     echo "  -f      backup file system"
     echo "  -d      backup database"
     echo "  -o      force full file system backup"
+    echo "  -n      notify if there has been a backup failure"
     echo ""
     echo "Sync options:"
     echo ""
@@ -271,12 +277,29 @@ deploy() {
     fi
 }
 
+notify() {
+    local last_backup=$(cat $LOCAL_LAST_BACKUP_FILE)
+    local last_backup_seconds=$(date -jf $TIMESTAMP_FORMAT $last_backup +%s)
+    local last_backup_standard_format=$(date -jf $TIMESTAMP_FORMAT $last_backup)
+    local current_seconds=$(date -jf $TIMESTAMP_FORMAT $TIMESTAMP +%s)
+    local seconds_since_last_backup=$(($current_seconds-$last_backup_seconds))
+
+    if [ $seconds_since_last_backup -gt "$NOTIFICATION_SECONDS" ]; then
+        $GROWLNOTIFY \
+            --sticky \
+            -t "Backup Failure" \
+            -m "The last successful backup was at $last_backup_standard_format."
+        return 1
+    fi
+    return 0
+}
+
 #
 # main script
 #
 
 # process command line args
-while getopts ":hcvpbfodsu" options; do
+while getopts ":hcvpbfodsun" options; do
     case $options in
         h)
             usage
@@ -312,6 +335,9 @@ while getopts ":hcvpbfodsu" options; do
             ;;
         u)
             DO_DEPLOY=1
+            ;;
+        n)
+            DO_NOTIFY=1
             ;;
         *)
             echo "unknown option: $OPTARG"
@@ -357,7 +383,7 @@ if [ "$DO_BACKUP" ]; then
     
     remove_old_backups $REMOTE_ARCHIVE_DIR $REMOTE_RETENTION_DAYS
 
-    echo $TIMESTAMP > $LAST_BACKUP_FILE
+    echo $TIMESTAMP > $REMOTE_LAST_BACKUP_FILE
     
     echo "Backup completed at $(date)"
     exit 0
@@ -367,6 +393,15 @@ if [ "$DO_SYNC" ]; then
     sync_files
     remove_old_backups $LOCAL_ARCHIVE_DIR $LOCAL_RETENTION_DAYS
     exit 0
+fi
+
+if [ "$DO_NOTIFY" ]; then
+    notify
+    if [ $? -ne 0 ]; then
+        exit 1
+    else
+        exit 0
+    fi
 fi
 
 # prevent usage from running when sourced

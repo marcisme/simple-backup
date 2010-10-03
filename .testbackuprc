@@ -6,4 +6,4 @@ REMOTE_HOST=localhost
 REMOTE_HOME=$(pwd)/.test/remote/home
 LOCAL_HOME=$(pwd)/.test/local/home
 TAR=gnutar
-TIMESTAMP=1234.5678
+TIMESTAMP=20100101.000000
