@@ -1,0 +1,44 @@
+###
+# Required
+###
+
+# prefix for backup files
+BACKUP_NAME=
+
+# database login info
+MYSQL_USER=
+MYSQL_PASSWORD=
+
+# username on the remote server
+REMOTE_USER=
+# remote server hostname
+REMOTE_HOST=
+
+###
+# Optional
+###
+
+# remote home directory, if different than local
+REMOTE_HOME=
+
+# name of the archive directory
+# subdirectory of remote home directory, backups by default
+# ex: /home/user/backups
+ARCHIVE_DIR_NAME=
+
+# fully qualified archive directories
+# Use these if don't want the archive directory to be in your home directory.
+REMOTE_ARCHIVE_DIR=
+LOCAL_ARCHIVE_DIR=
+
+# day of the week to do a full backup
+# Mon-Sun (1-7), defaults to Friday (5)
+FULL_DAY_OF_WEEK=
+
+# time since last successful backup to generate notifications
+# defaults to 25 hours
+NOTIFICATION_HOURS=
+
+# backup file retention periods, defaults to 30 days
+REMOTE_RETENTION_DAYS=
+LOCAL_RETENTION_DAYS=
