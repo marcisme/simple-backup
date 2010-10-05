@@ -30,6 +30,7 @@ export REMOTE_SCRIPT_FILE
 export LOCAL_SCRIPT_FILE
 export NOTIFICATION_HOURS
 export NOTIFICATION_SECONDS
+export FS_ARCHIVE_FILE_NAME
 
 ruby simple-backup-env-test.rb
 
