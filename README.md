@@ -1,6 +1,6 @@
 # Simple Backup
 
-by Marc Schwieterman - http://marcschwieterman.com
+by Marc Schwieterman - <http://marcschwieterman.com>
 
 ## Overview
 
