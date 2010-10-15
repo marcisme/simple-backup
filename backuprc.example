@@ -42,3 +42,12 @@ NOTIFICATION_HOURS=
 # backup file retention periods, defaults to 30 days
 REMOTE_RETENTION_DAYS=
 LOCAL_RETENTION_DAYS=
+
+# Override to use different programs or to fully qualify paths.
+# ie: gnutar or /opt/bin/gnutar
+TAR=
+MYSQLDUMP=
+RSYNC=
+SCP=
+GROWLNOTIFY=
+
