@@ -397,8 +397,10 @@ if [ "$DO_BACKUP" ]; then
 fi
 
 if [ "$DO_SYNC" ]; then
+    echo "Initiating rsync at $(date)"
     sync_files
     remove_old_backups $LOCAL_ARCHIVE_DIR $LOCAL_RETENTION_DAYS
+    echo "Rsync completed at $(date)"
     exit 0
 fi
 
