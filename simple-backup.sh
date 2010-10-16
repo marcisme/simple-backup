@@ -44,6 +44,7 @@ TAR=${TAR:-tar}
 MYSQLDUMP=${MYSQLDUMP:-mysqldump}
 RSYNC=${RSYNC:-rsync}
 SCP=${SCP:-scp}
+SSH_AGENT=${SSH_AGENT:-ssh-agent}
 GROWLNOTIFY=${GROWLNOTIFY:-growlnotify}
 
 # names and formatting
@@ -255,7 +256,7 @@ sync_files() {
         local verbose_arg="--verbose"
     fi
     
-    $RSYNC \
+    $SSH_AGENT $RSYNC \
         --archive \
         --compress \
         --rsh=ssh \
