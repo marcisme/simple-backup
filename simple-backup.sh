@@ -45,7 +45,7 @@ MYSQLDUMP=${MYSQLDUMP:-mysqldump}
 RSYNC=${RSYNC:-rsync}
 SCP=${SCP:-scp}
 SSH_AGENT=${SSH_AGENT:-ssh-agent}
-GROWLNOTIFY=${GROWLNOTIFY:-growlnotify}
+GROWLNOTIFY=${GROWLNOTIFY:-/usr/local/bin/growlnotify}
 
 # names and formatting
 SCRIPT_NAME=simple-backup.sh
