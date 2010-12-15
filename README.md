@@ -60,6 +60,10 @@ Run a sync shortly after backups. This is done hourly in case something happens 
 ## Known Issues
 
 *   In my testing incremental backups were sometimes not so incremental on OS X. I've seen this with hfstar and gnutar, both of which I installed via [macports](http://www.macports.org/). I've yet to see any issues on Linux.
+
+## License
+
+BSD License - <http://www.opensource.org/licenses/bsd-license.php>
  
 ## Changelog
 
