@@ -133,7 +133,7 @@ class SimpleBackupEnvTest < Test::Unit::TestCase
 
     def test_exclude_file_contents
         exclude_file = Rush.dir(__FILE__)[ENV['EXCLUDE_FILE']]
-        assert(exclude_file.lines.include? 'tmp')
+        assert(exclude_file.lines.include?('tmp'))
     end
 
     def test_remote_last_backup_file_from_env

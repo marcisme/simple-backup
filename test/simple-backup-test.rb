@@ -44,10 +44,10 @@ class SimpleBackupTest < Test::Unit::TestCase
         tar_contents = @remote_archive_dir[ENV['FS_ARCHIVE_FILE_NAME']].ztf
 
         assert_equal(4, tar_contents.size)
-        assert(tar_contents.include? 'home/')
-        assert(tar_contents.include? 'home/file_one')
-        assert(tar_contents.include? 'home/file_two')
-        assert(tar_contents.include? 'home/file_three')
+        assert(tar_contents.include?('home/'))
+        assert(tar_contents.include?('home/file_one'))
+        assert(tar_contents.include?('home/file_two'))
+        assert(tar_contents.include?('home/file_three'))
     end
 
     def test_partial_backup
@@ -62,8 +62,8 @@ class SimpleBackupTest < Test::Unit::TestCase
         tar_contents = @remote_archive_dir['2.tar.gz'].ztf
 
         assert_equal(2, tar_contents.size)
-        assert(tar_contents.include? 'home/')
-        assert(tar_contents.include? 'home/file_two')
+        assert(tar_contents.include?('home/'))
+        assert(tar_contents.include?('home/file_two'))
     end
     
     def test_force_full_backup
@@ -78,9 +78,9 @@ class SimpleBackupTest < Test::Unit::TestCase
         tar_contents = @remote_archive_dir['2.tar.gz'].ztf
 
         assert_equal(3, tar_contents.size)
-        assert(tar_contents.include? 'home/')
-        assert(tar_contents.include? 'home/file_one')
-        assert(tar_contents.include? 'home/file_two')
+        assert(tar_contents.include?('home/'))
+        assert(tar_contents.include?('home/file_one'))
+        assert(tar_contents.include?('home/file_two'))
     end
     
     def test_backup_excludes
@@ -92,8 +92,8 @@ class SimpleBackupTest < Test::Unit::TestCase
         tar_contents = @remote_archive_dir[ENV['FS_ARCHIVE_FILE_NAME']].ztf
 
         assert_equal(2, tar_contents.size)
-        assert(tar_contents.include? 'home/')
-        assert(tar_contents.include? 'home/file_one')
+        assert(tar_contents.include?('home/'))
+        assert(tar_contents.include?('home/file_one'))
     end
 
     def test_sync
