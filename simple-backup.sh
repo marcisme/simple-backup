@@ -46,13 +46,14 @@ RSYNC=${RSYNC:-rsync}
 SCP=${SCP:-scp}
 SSH_AGENT=${SSH_AGENT:-ssh-agent}
 GROWLNOTIFY=${GROWLNOTIFY:-/usr/local/bin/growlnotify}
+DATE="date -u" # add -u here to ensure UTC is used
 
 # names and formatting
 SCRIPT_NAME=simple-backup.sh
 FS_STRING=${FS_STRING:-fs}
 MYSQL_STRING=${MYSQL_STRING:-mysql}
 TIMESTAMP_FORMAT=${TIMESTAMP_FORMAT:-'%Y%m%d.%H%M%S'}
-TIMESTAMP=${TIMESTAMP:-$(date +$TIMESTAMP_FORMAT)}
+TIMESTAMP=${TIMESTAMP:-$($DATE +$TIMESTAMP_FORMAT)}
 ARCHIVE_DIR_NAME=${ARCHIVE_DIR_NAME:-backups}
 FS_ARCHIVE_FILE_NAME="${BACKUP_NAME}-${FS_STRING}-${TIMESTAMP}.tar.gz"
 MYSQL_ARCHIVE_FILE_NAME="${BACKUP_NAME}-${MYSQL_STRING}-${TIMESTAMP}.sql.gz"
@@ -87,7 +88,7 @@ LOCAL_ARCHIVE_DIR=${LOCAL_ARCHIVE_DIR:-$LOCAL_HOME/$ARCHIVE_DIR_NAME}
 LOCAL_LAST_BACKUP_FILE=$LOCAL_ARCHIVE_DIR/$LAST_BACKUP_FILE_NAME
 
 # internal values
-DAY_OF_WEEK=$(date +%u)
+DAY_OF_WEEK=$($DATE +%u)
 
 usage() {
     echo "Usage: $(basename $0) [options]"
@@ -286,9 +287,9 @@ deploy() {
 
 notify() {
     local last_backup=$(cat $LOCAL_LAST_BACKUP_FILE)
-    local last_backup_seconds=$(date -jf $TIMESTAMP_FORMAT $last_backup +%s)
-    local last_backup_standard_format=$(date -jf $TIMESTAMP_FORMAT $last_backup)
-    local current_seconds=$(date -jf $TIMESTAMP_FORMAT $TIMESTAMP +%s)
+    local last_backup_seconds=$($DATE -jf $TIMESTAMP_FORMAT $last_backup +%s)
+    local last_backup_standard_format=$($DATE -jf $TIMESTAMP_FORMAT $last_backup)
+    local current_seconds=$($DATE -jf $TIMESTAMP_FORMAT $TIMESTAMP +%s)
     local seconds_since_last_backup=$(($current_seconds-$last_backup_seconds))
 
     if [ $seconds_since_last_backup -gt "$NOTIFICATION_SECONDS" ]; then
@@ -374,7 +375,7 @@ if [ "$DO_BACKUP" ]; then
     validate_env_vars
     validate_directories
 
-    echo "Initiating backup at $(date)"
+    echo "Initiating backup at $($DATE)"
     
     if [ "$PRETENDING" ]; then
         echo "Running in pretend mode. No commands will actually be executed."
@@ -392,15 +393,15 @@ if [ "$DO_BACKUP" ]; then
 
     echo $TIMESTAMP > $REMOTE_LAST_BACKUP_FILE
     
-    echo "Backup completed at $(date)"
+    echo "Backup completed at $($DATE)"
     exit 0
 fi
 
 if [ "$DO_SYNC" ]; then
-    echo "Initiating rsync at $(date)"
+    echo "Initiating rsync at $($DATE)"
     sync_files
     remove_old_backups $LOCAL_ARCHIVE_DIR $LOCAL_RETENTION_DAYS
-    echo "Rsync completed at $(date)"
+    echo "Rsync completed at $($DATE)"
     exit 0
 fi
 
